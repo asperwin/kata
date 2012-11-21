@@ -1,106 +1,99 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 
 namespace Kata.Tests
 {
-     [TestFixture]
+    [TestFixture]
     public class CalculatorTest
     {
-         [Test]
-         public void Add_EmptyStringPassed_ZeroReturned()
-         {
-             //Arrange
-             Calculator calc = new Calculator();
+        [Test]
+        public void Add_EmptyStringPassed_ZeroReturned()
+        {
+            var calc = new Calculator();
 
-             //Act
-             int val = calc.Add("");
+            var result = calc.Add("");
 
-             //Assert
-             Assert.AreEqual(val, 0);
-         }
+            Assert.That(result, Is.EqualTo(0));
+        }
 
-         [Test]
-         public void Add_OneElementStringPassed_ElementReturned()
-         {
-             //Arrange
-             Calculator calc = new Calculator();
+        [Test]
+        public void Add_NumberStringPassed_NumberReturned()
+        {
+            var calc = new Calculator();
 
-             //Act
-             int val = calc.Add("5");
+            var result = calc.Add("1");
 
-             //Assert
-             Assert.AreEqual(val, 5);
-         }
+            Assert.That(result, Is.EqualTo(1));
+        }
 
-         [Test]
-         public void Add_TwoElementsStringPassed_SumReturned()
-         {
-             //Arrange
-             Calculator calc = new Calculator();
+        [Test]
+        public void Add_NumbersStringPassed_NumbersSumReturned()
+        {
+            var calc = new Calculator();
 
-             //Act
-             int val = calc.Add("1,2");
+            var result = calc.Add("1,2");
 
-             //Assert
-             Assert.AreEqual(val, 3);
-         }
+            Assert.That(result, Is.EqualTo(3));
+        }
 
-         [Test]
-         public void Add_ElementsSpliByNewLineStringPassed_SumReturned()
-         {
-             //Arrange
-             Calculator calc = new Calculator();
+        [Test]
+        public void Add_NumbersSplitByNewLineStringPassed_NumbersSumReturned()
+        {
+            var calc = new Calculator();
 
-             //Act
-             int val = calc.Add("1\n2");
+            var result = calc.Add("1\n2,3");
 
-             //Assert
-             Assert.AreEqual(val, 3);
-         }
+            Assert.That(result, Is.EqualTo(6));
+        }
 
-         [Test]
-         public void Add_ThreeElementsSpliByNewLineOrComaPassed_SumReturned()
-         {
-             //Arrange
-             Calculator calc = new Calculator();
+        [Test]
+        public void Add_NumbersSplitByCustomSeparatorStringPassed_NumbersSumReturned()
+        {
+            var calc = new Calculator();
 
-             //Act
-             int val = calc.Add("1\n2,3");
+            var result = calc.Add("//;\n1;2");
 
-             //Assert
-             Assert.AreEqual(val, 6);
-         }
+            Assert.That(result, Is.EqualTo(3));
+        }
 
-         [Test]
-         public void Add_ElementsSpliByNewDelimeterPassed_SumReturned()
-         {
-             //Arrange
-             Calculator calc = new Calculator();
+        [Test]
+        public void Add_NumbersWithNegativesPassed_ExceptionReturned()
+        {
+            var calc = new Calculator();
 
-             //Act
-             int val = calc.Add("//;\n1;2");
+            Assert.Throws(Is.TypeOf<ArgumentException>().And.Message.EqualTo("negatives not allowed\r\nParameter name: -2,-4"),
+                ()=> calc.Add("1,-2,3,-4"));
+        }
 
-             //Assert
-             Assert.That(val, Is.EqualTo(3));
-             Assert.AreEqual(val, 3);
-         }
+        [Test]
+        public void Add_NumbersBiggerThen1000StringPassed_SumReturnedBigNumbersIgnored()
+        {
+            var calc = new Calculator();
 
-         [Test]
-         public void Add_NegativeElementIsPassed_ExceptionThrown()
-         {
-             //Arrange
-             Calculator calc = new Calculator();
-             
-             Assert.Throws(Is.TypeOf<ArgumentException>().And.Message.EqualTo("negatives not allowed"),
-                 delegate
-                     {
-                         calc.Add("1, -2");
-                     });
-         }
-       
+            var result = calc.Add("1,2,1001,3,1000");
+
+            Assert.That(result, Is.EqualTo(1006));
+        }
+
+        [Test]
+        public void Add_NumbersSplitByMultyCharacterDelimeterPassed_SumReturned()
+        {
+            var calc = new Calculator();
+
+            var result = calc.Add("//[***]\n1***2***3");
+
+            Assert.That(result, Is.EqualTo(6));
+        }
+
+        [Test]
+        public void Add_NumbersSplitByMultipleDelimetersPassed_SumReturned()
+        {
+            var calc = new Calculator();
+
+            var result = calc.Add("//[*][%]\n1*2%3");
+
+            Assert.That(result, Is.EqualTo(6));
+        }
+
     }
 }

@@ -1,50 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Kata
 {
     public class Calculator
     {
-        public int Add(string items)
+        public int Add(string numbersString)
         {
-            int sum = 0;
+            if(string.IsNullOrEmpty(numbersString))
+                return 0;
 
-            if (string.IsNullOrEmpty(items))
-                return sum;
+            var splitters = GetSpeparators(numbersString);
+            var numbers = GetNumbers(numbersString, splitters);
 
-            List<char> delimeters = new[] { ',', '\n' }.ToList();
-            if (items.StartsWith("//"))
-            {
-                delimeters.Add(items[2]);
-            }
+            return Add(numbers);
+        }
 
-            var numbers = items.Split(delimeters.ToArray());
-
-            int tempVal = 0;
-
-            string negatives = string.Empty;
-            foreach (var number in numbers)
-            {
-                if (int.TryParse(number, out tempVal))
+        private string[] GetSpeparators(string numbersString)
+        {
+            List<string> separators = new List<string>
                 {
-                    if (tempVal > 0)
-                    {
-                        sum += tempVal;
-                    }
+                    ",", "\n"
+                };
+
+            if (numbersString.StartsWith("//"))
+            {
+                var segments = numbersString.Split('\n');
+                if (segments.Any())
+                {
+                    var splitters = segments[0].Substring(2).Replace("[", "");
+                    separators.AddRange(splitters.Split(']'));
+                }
+
+            }
+            return separators.ToArray();
+        }
+
+        private IEnumerable<int> GetNumbers(string numbersString, string[] separators)
+        {
+            List<int> array = new List<int>();
+            var characters = numbersString.Split(separators, StringSplitOptions.None);
+            int temp;
+            string exceptionMessageParams = string.Empty;
+            foreach (var character in characters)
+            {
+                if (int.TryParse(character, out temp))
+                {
+                    if(temp > 0)
+                        array.Add(temp);
                     else
                     {
-                        negatives += tempVal + ";";
+                        if (string.IsNullOrEmpty(exceptionMessageParams))
+                            exceptionMessageParams += temp;
+                        else
+                        {
+                            exceptionMessageParams += "," + temp;
+                        }
                     }
                 }
             }
-            if (!string.IsNullOrEmpty(negatives))
-            {
-                throw new ArgumentException("negatives not allowed", negatives);
-            }
+            
+            if(!string.IsNullOrEmpty(exceptionMessageParams))
+                throw new ArgumentException("negatives not allowed", exceptionMessageParams);
+            return array;
+        }
 
-            return sum;
+        private int Add(IEnumerable<int> numbers)
+        {
+            return numbers.Where(n => n <= 1000).Sum();
         }
     }
+
 }
